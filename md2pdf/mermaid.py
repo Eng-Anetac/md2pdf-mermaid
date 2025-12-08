@@ -40,6 +40,9 @@ def render_mermaid_to_png(mermaid_code, output_path, width=1400, height=1000, sc
     if not PLAYWRIGHT_AVAILABLE:
         return False
 
+    # Set background color based on theme
+    bg_color = '#1f2937' if theme == 'dark' else 'transparent'
+
     # HTML template with Mermaid.js from CDN
     # Using Mermaid v11 (latest stable version)
     html_template = f"""
@@ -62,7 +65,7 @@ def render_mermaid_to_png(mermaid_code, output_path, width=1400, height=1000, sc
             body {{
                 margin: 0;
                 padding: 0;
-                background: white;
+                background: {bg_color};
             }}
             #diagram {{
                 display: inline-block;
@@ -261,6 +264,11 @@ def render_mermaid_to_png(mermaid_code, output_path, width=1400, height=1000, sc
 
                     // Draw SVG to canvas
                     const ctx = canvas.getContext('2d');
+
+                    // Fill background color first
+                    ctx.fillStyle = '{bg_color}';
+                    ctx.fillRect(0, 0, svgData.targetWidth, svgData.targetHeight);
+
                     const img = new Image();
                     const svgBlob = new Blob([svgData.svgString], {{type: 'image/svg+xml;charset=utf-8'}});
                     const url = URL.createObjectURL(svgBlob);
