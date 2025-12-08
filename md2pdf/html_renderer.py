@@ -150,7 +150,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
 
         h2 {{
             font-size: 18pt;
-            color: #14b8a6;
+            color: #f9fafb;
             border-bottom: 1px solid #374151;
             padding-bottom: 6px;
             margin-top: 20px;
@@ -159,14 +159,14 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
 
         h3 {{
             font-size: 14pt;
-            color: #14b8a6;
+            color: #f9fafb;
             margin-top: 16px;
             margin-bottom: 10px;
         }}
 
         h4 {{
             font-size: 12pt;
-            color: #14b8a6;
+            color: #f9fafb;
             margin-top: 14px;
             margin-bottom: 8px;
         }}
