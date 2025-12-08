@@ -13,12 +13,13 @@ from typing import Optional, List, Tuple
 import markdown
 
 
-def _process_mermaid_diagrams(markdown_text: str) -> Tuple[str, List[str]]:
+def _process_mermaid_diagrams(markdown_text: str, theme: str = 'default') -> Tuple[str, List[str]]:
     """
     Find and render Mermaid diagrams, replace with <img> tags.
 
     Args:
         markdown_text: Markdown content with potential Mermaid blocks
+        theme: Mermaid theme ('default', 'dark', 'forest', 'neutral')
 
     Returns:
         Tuple of (modified_markdown, list_of_temp_image_paths)
@@ -50,7 +51,7 @@ def _process_mermaid_diagrams(markdown_text: str) -> Tuple[str, List[str]]:
             # Use wider canvas but let height auto-calculate to avoid layout errors
             success = render_mermaid_to_png(
                 mermaid_code, tmp_path,
-                width=1400, height=2000, scale=2, theme='default'
+                width=1400, height=2000, scale=2, theme=theme
             )
 
             if success:
@@ -79,7 +80,7 @@ def _process_mermaid_diagrams(markdown_text: str) -> Tuple[str, List[str]]:
 
 
 def markdown_to_html(markdown_text: str, title: str = "Document",
-                     enable_mermaid: bool = True) -> str:
+                     enable_mermaid: bool = True, mermaid_theme: str = 'default') -> str:
     """
     Convert Markdown to HTML with proper styling for PDF.
 
@@ -87,6 +88,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
         markdown_text: Markdown content
         title: Document title
         enable_mermaid: Enable Mermaid diagram rendering
+        mermaid_theme: Mermaid theme ('default', 'dark', 'forest', 'neutral')
 
     Returns:
         Complete HTML document with CSS
@@ -94,7 +96,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
     # Pre-process Mermaid diagrams if enabled
     temp_images = []
     if enable_mermaid:
-        markdown_text, temp_images = _process_mermaid_diagrams(markdown_text)
+        markdown_text, temp_images = _process_mermaid_diagrams(markdown_text, mermaid_theme)
 
     # Convert markdown to HTML
     md = markdown.Markdown(extensions=[
@@ -117,6 +119,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
         @page {{
             size: A4;
             margin: 2cm;
+            background-color: #1f2937;
         }}
 
         body {{
@@ -125,16 +128,21 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
                          "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji";
             font-size: 11pt;
             line-height: 1.6;
-            color: #333;
+            color: #e5e7eb;
+            background-color: #1f2937;
             max-width: 100%;
             margin: 0;
             padding: 0;
         }}
 
+        body > *:first-child {{
+            margin-top: 0;
+        }}
+
         h1 {{
             font-size: 24pt;
-            color: #2c3e50;
-            border-bottom: 3px solid #3498db;
+            color: #14b8a6;
+            border-bottom: 3px solid #14b8a6;
             padding-bottom: 8px;
             margin-top: 24px;
             margin-bottom: 16px;
@@ -142,8 +150,8 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
 
         h2 {{
             font-size: 18pt;
-            color: #34495e;
-            border-bottom: 1px solid #95a5a6;
+            color: #14b8a6;
+            border-bottom: 1px solid #374151;
             padding-bottom: 6px;
             margin-top: 20px;
             margin-bottom: 12px;
@@ -151,25 +159,27 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
 
         h3 {{
             font-size: 14pt;
-            color: #555;
+            color: #14b8a6;
             margin-top: 16px;
             margin-bottom: 10px;
         }}
 
         h4 {{
             font-size: 12pt;
-            color: #666;
+            color: #14b8a6;
             margin-top: 14px;
             margin-bottom: 8px;
         }}
 
         p {{
             margin: 8px 0;
+            color: #d1d5db;
         }}
 
         ul, ol {{
             margin: 8px 0;
             padding-left: 24px;
+            color: #d1d5db;
         }}
 
         li {{
@@ -177,18 +187,18 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
         }}
 
         code {{
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
+            background-color: #374151;
+            border: 1px solid #4b5563;
             border-radius: 3px;
             padding: 2px 6px;
             font-family: "Courier New", Courier, monospace;
             font-size: 10pt;
-            color: #666;
+            color: #14b8a6;
         }}
 
         pre {{
-            background-color: #f8f8f8;
-            border: 1px solid #ddd;
+            background-color: #111827;
+            border: 1px solid #374151;
             border-radius: 4px;
             padding: 12px;
             overflow-x: auto;
@@ -200,6 +210,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
             border: none;
             padding: 0;
             font-size: 9pt;
+            color: #d1d5db;
         }}
 
         table {{
@@ -209,44 +220,50 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
         }}
 
         th {{
-            background-color: #3498db;
-            color: white;
+            background-color: #374151;
+            color: #f9fafb;
             font-weight: bold;
             padding: 10px;
             text-align: left;
-            border: 1px solid #ddd;
+            border: 1px solid #4b5563;
         }}
 
         td {{
             padding: 8px;
-            border: 1px solid #ddd;
+            border: 1px solid #374151;
+            color: #d1d5db;
         }}
 
         tr:nth-child(even) {{
-            background-color: #f9f9f9;
+            background-color: #374151;
+        }}
+
+        tr:nth-child(odd) {{
+            background-color: #1f2937;
         }}
 
         blockquote {{
-            border-left: 4px solid #3498db;
+            border-left: 4px solid #14b8a6;
             padding-left: 16px;
             margin: 12px 0;
-            color: #666;
+            color: #9ca3af;
             font-style: italic;
         }}
 
         hr {{
             border: none;
-            border-top: 2px solid #eee;
+            border-top: 2px solid #374151;
             margin: 20px 0;
         }}
 
         a {{
-            color: #3498db;
+            color: #14b8a6;
             text-decoration: none;
         }}
 
         a:hover {{
             text-decoration: underline;
+            color: #14b8a6;
         }}
 
         /* Emoji support - ensure they render properly */
@@ -316,10 +333,10 @@ async def html_to_pdf_playwright(html_content: str, output_path: str,
             'header_template': '<div></div>',  # Empty header
             'footer_template': '<div style="font-size: 9px; text-align: center; width: 100%; color: #666;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
             'margin': {
-                'top': '0.5cm',
-                'right': '0.5cm',
-                'bottom': '1.2cm',  # Increased for footer
-                'left': '0.5cm'
+                'top': '2cm',
+                'right': '2cm',
+                'bottom': '2.5cm',
+                'left': '2cm'
             }
         }
 
@@ -358,7 +375,8 @@ def convert_markdown_to_pdf_html(markdown_text: str, output_path: str,
                                  title: str = "Document",
                                  page_size: str = 'A4',
                                  orientation: str = 'portrait',
-                                 enable_mermaid: bool = True) -> dict:
+                                 enable_mermaid: bool = True,
+                                 mermaid_theme: str = 'default') -> dict:
     """
     Convert Markdown to PDF via HTML rendering (supports emoji!).
 
@@ -371,13 +389,15 @@ def convert_markdown_to_pdf_html(markdown_text: str, output_path: str,
         title: Document title
         page_size: Page size ('A4', 'A3', 'Letter')
         orientation: 'portrait' or 'landscape'
+        enable_mermaid: Enable Mermaid diagram rendering
+        mermaid_theme: Mermaid theme ('default', 'dark', 'forest', 'neutral')
 
     Returns:
         dict with success status
     """
     try:
         # Convert Markdown to HTML
-        html_content = markdown_to_html(markdown_text, title, enable_mermaid)
+        html_content = markdown_to_html(markdown_text, title, enable_mermaid, mermaid_theme)
 
         # Use asyncio to run the async function
         import asyncio
