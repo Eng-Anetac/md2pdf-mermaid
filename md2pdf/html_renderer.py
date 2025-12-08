@@ -119,7 +119,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
         @page {{
             size: A4;
             margin: 2cm;
-            background-color: #1f2937;
+            background-color: #111827;
         }}
 
         body {{
@@ -129,7 +129,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
             font-size: 11pt;
             line-height: 1.6;
             color: #e5e7eb;
-            background-color: #1f2937;
+            background-color: #111827;
             max-width: 100%;
             margin: 0;
             padding: 0;
@@ -197,7 +197,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
         }}
 
         pre {{
-            background-color: #111827;
+            background-color: #0d1117;
             border: 1px solid #374151;
             border-radius: 4px;
             padding: 12px;

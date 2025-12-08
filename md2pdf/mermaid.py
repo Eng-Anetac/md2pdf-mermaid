@@ -41,7 +41,7 @@ def render_mermaid_to_png(mermaid_code, output_path, width=1400, height=1000, sc
         return False
 
     # Set background color based on theme
-    bg_color = '#1f2937' if theme == 'dark' else 'transparent'
+    bg_color = '#111827' if theme == 'dark' else 'transparent'
 
     # HTML template with Mermaid.js from CDN
     # Using Mermaid v11 (latest stable version)
