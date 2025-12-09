@@ -133,8 +133,8 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
 
         h1 {{
             font-size: 24pt;
-            color: #2c3e50;
-            border-bottom: 3px solid #3498db;
+            color: #0d9488;
+            border-bottom: 3px solid #0d9488;
             padding-bottom: 8px;
             margin-top: 24px;
             margin-bottom: 16px;
@@ -142,8 +142,8 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
 
         h2 {{
             font-size: 18pt;
-            color: #34495e;
-            border-bottom: 1px solid #95a5a6;
+            color: #0d9488;
+            border-bottom: 1px solid #0d9488;
             padding-bottom: 6px;
             margin-top: 20px;
             margin-bottom: 12px;
@@ -151,14 +151,14 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
 
         h3 {{
             font-size: 14pt;
-            color: #555;
+            color: #0d9488;
             margin-top: 16px;
             margin-bottom: 10px;
         }}
 
         h4 {{
             font-size: 12pt;
-            color: #666;
+            color: #0d9488;
             margin-top: 14px;
             margin-bottom: 8px;
         }}
@@ -209,7 +209,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
         }}
 
         th {{
-            background-color: #3498db;
+            background-color: #4b5563;
             color: white;
             font-weight: bold;
             padding: 10px;
