@@ -106,6 +106,13 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
     ])
     content_html = md.convert(markdown_text)
 
+    # Hardcoded logo (Anetac logo in base64)
+    logo_html = '''<div class="pdf-header">
+    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTU4IiBoZWlnaHQ9IjkzIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogICAgPHBhdGggZD0iTTUwLjY5NyA0Ni40MTljMCA1LjI2MiA0LjMxOCA5LjUyMSA5LjYzOSA5LjUyMWgzNi45NzJjNS4zMjcgMCA5LjYzOS00LjI2IDkuNjM5LTkuNTIxIDAtNS4yNjItNC4zMTgtOS41MjItOS42NC05LjUyMkg2MC4zMzdjLTUuMzI4IDAtOS42NCA0LjI2LTkuNjQgOS41MjJaIiBmaWxsPSIjMTRCOEE2Ii8+CiAgICA8cGF0aCBkPSJNMCA0Ni40MTljMCAyNS41OTggMjEuMDg1IDQ2LjQxOCA0Ny4wMDMgNDYuNDE4aDIyLjU3NFY3My43OTRINDcuMDAzYy0xNS4yODMgMC0yNy43MTctMTIuMjgtMjcuNzE3LTI3LjM3NVMzMS43MiAxOS4wNDMgNDcuMDAzIDE5LjA0M2gyMi41NzRWMEg0Ny4wMDNDMjEuMDg1IDAgMCAyMC44MiAwIDQ2LjQxOVpNMTEwLjY0OCAwSDg4LjA3M3YxOS4wNDNoMjIuNTc1YzE1LjI4MyAwIDI3LjcxNyAxMi4yOCAyNy43MTcgMjcuMzc2IDAgMTUuMDk1LTEyLjQzNCAyNy4zNzUtMjcuNzE3IDI3LjM3NUg4OC4wNzN2MTkuMDQzaDIyLjU3NWMyNS45MTggMCA0Ny4wMDItMjAuODIgNDcuMDAyLTQ2LjQxOEMxNTcuNjUgMjAuODIgMTM2LjU2NiAwIDExMC42NDggMFoiIGZpbGw9IiMxNEI4QTYiLz4KPC9zdmc+Cg==" />
+    <span class="company-name">Anetac</span>
+</div>
+'''
+
     # Create complete HTML document with nice styling
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -128,7 +135,7 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
             color: #333;
             max-width: 100%;
             margin: 0;
-            padding: 0;
+            padding: 60px 0 0 0;
         }}
 
         h1 {{
@@ -266,9 +273,33 @@ def markdown_to_html(markdown_text: str, title: str = "Document",
                 -webkit-print-color-adjust: exact;
             }}
         }}
+
+        /* Logo header - absolute position top left */
+        .pdf-header {{
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 20px 15px 20px;
+            z-index: 9999;
+            background: white;
+        }}
+        .pdf-header img {{
+            width: 60px;
+            height: auto;
+        }}
+        .pdf-header .company-name {{
+            font-size: 20pt;
+            font-weight: bold;
+            color: #0d9488;
+        }}
     </style>
 </head>
 <body>
+{logo_html}
 {content_html}
 </body>
 </html>"""
