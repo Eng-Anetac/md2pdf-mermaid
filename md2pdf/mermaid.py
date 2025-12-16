@@ -55,6 +55,9 @@ def render_mermaid_to_png(mermaid_code, output_path, width=1400, height=1000, sc
                     useMaxWidth: false,
                     htmlLabels: true
                 }},
+                gantt: {{
+                    useMaxWidth: true
+                }},
                 securityLevel: 'loose'
             }});
         </script>
@@ -152,82 +155,87 @@ def render_mermaid_to_png(mermaid_code, output_path, width=1400, height=1000, sc
             svg_data = page.evaluate(f'''() => {{
                 const svg = document.querySelector('#diagram svg');
 
-                // Try multiple methods to get valid dimensions
+                // Detect if this is a Gantt chart
+                const isGantt = svg.classList.contains('gantt') ||
+                                svg.querySelector('.gantt') !== null ||
+                                svg.innerHTML.includes('class="gantt"');
+
                 let naturalWidth, naturalHeight, bbox;
 
-                // Method 1: Try getBBox() first
-                try {{
-                    bbox = svg.getBBox();
-                    if (bbox && bbox.width > 0 && bbox.height > 0 &&
-                        !isNaN(bbox.width) && !isNaN(bbox.height)) {{
-                        naturalWidth = bbox.width;
-                        naturalHeight = bbox.height;
-                    }}
-                }} catch (e) {{
-                    console.log('getBBox failed:', e);
-                }}
-
-                // Method 2: Try SVG viewBox attribute
-                if (!naturalWidth || !naturalHeight) {{
+                if (isGantt) {{
+                    // For Gantt charts: Use viewBox dimensions set by Mermaid
+                    // Mermaid calculates optimal dimensions based on task count
                     const viewBox = svg.getAttribute('viewBox');
                     if (viewBox) {{
                         const parts = viewBox.split(/\\s+/);
                         if (parts.length >= 4) {{
-                            const w = parseFloat(parts[2]);
-                            const h = parseFloat(parts[3]);
-                            if (w > 0 && h > 0 && !isNaN(w) && !isNaN(h)) {{
-                                naturalWidth = w;
-                                naturalHeight = h;
+                            naturalWidth = parseFloat(parts[2]);
+                            naturalHeight = parseFloat(parts[3]);
+                        }}
+                    }}
+                    // Fallback to width/height attributes
+                    if (!naturalWidth || !naturalHeight) {{
+                        naturalWidth = parseFloat(svg.getAttribute('width')) || {width};
+                        naturalHeight = parseFloat(svg.getAttribute('height')) || {height};
+                    }}
+                }} else {{
+                    // For other diagrams: Try getBBox first for tight bounds
+                    try {{
+                        bbox = svg.getBBox();
+                        if (bbox && bbox.width > 0 && bbox.height > 0 &&
+                            !isNaN(bbox.width) && !isNaN(bbox.height)) {{
+                            naturalWidth = bbox.width;
+                            naturalHeight = bbox.height;
+                        }}
+                    }} catch (e) {{
+                        console.log('getBBox failed:', e);
+                    }}
+
+                    // Fallback to viewBox
+                    if (!naturalWidth || !naturalHeight) {{
+                        const viewBox = svg.getAttribute('viewBox');
+                        if (viewBox) {{
+                            const parts = viewBox.split(/\\s+/);
+                            if (parts.length >= 4) {{
+                                naturalWidth = parseFloat(parts[2]);
+                                naturalHeight = parseFloat(parts[3]);
                             }}
                         }}
                     }}
-                }}
 
-                // Method 3: Try SVG width/height attributes
-                if (!naturalWidth || !naturalHeight) {{
-                    const w = parseFloat(svg.getAttribute('width'));
-                    const h = parseFloat(svg.getAttribute('height'));
-                    if (w > 0 && h > 0 && !isNaN(w) && !isNaN(h)) {{
-                        naturalWidth = w;
-                        naturalHeight = h;
+                    // Fallback to width/height attributes
+                    if (!naturalWidth || !naturalHeight) {{
+                        naturalWidth = parseFloat(svg.getAttribute('width')) || {width};
+                        naturalHeight = parseFloat(svg.getAttribute('height')) || {height};
                     }}
-                }}
-
-                // Method 4: Try getBoundingClientRect()
-                if (!naturalWidth || !naturalHeight) {{
-                    const rect = svg.getBoundingClientRect();
-                    if (rect && rect.width > 0 && rect.height > 0) {{
-                        naturalWidth = rect.width;
-                        naturalHeight = rect.height;
-                    }}
-                }}
-
-                // Method 5: Use defaults as last resort
-                if (!naturalWidth || naturalWidth <= 0 || isNaN(naturalWidth)) {{
-                    naturalWidth = {width};
-                }}
-                if (!naturalHeight || naturalHeight <= 0 || isNaN(naturalHeight)) {{
-                    naturalHeight = {height};
                 }}
 
                 const aspectRatio = naturalHeight / naturalWidth;
 
-                // Calculate target dimensions (width * scale for quality)
-                let targetWidth = {width} * {scale};
-                let targetHeight = targetWidth * aspectRatio;
+                // Calculate target dimensions
+                let targetWidth, targetHeight;
 
-                // Limit maximum height to prevent very tall diagrams
-                const maxHeight = 2400;  // Max height in pixels (fits in one PDF page)
-                if (targetHeight > maxHeight) {{
-                    targetHeight = maxHeight;
-                    targetWidth = targetHeight / aspectRatio;
-                }}
+                if (isGantt) {{
+                    // For Gantt: scale proportionally, preserve natural aspect ratio
+                    targetWidth = naturalWidth * {scale};
+                    targetHeight = naturalHeight * {scale};
+                }} else {{
+                    // For other diagrams: fit to width
+                    targetWidth = {width} * {scale};
+                    targetHeight = targetWidth * aspectRatio;
 
-                // Set viewBox to content bounds (removes whitespace)
-                // Only set if bbox has valid values
-                if (bbox && bbox.width > 0 && bbox.height > 0 &&
-                    !isNaN(bbox.width) && !isNaN(bbox.height)) {{
-                    svg.setAttribute('viewBox', `${{bbox.x}} ${{bbox.y}} ${{bbox.width}} ${{bbox.height}}`);
+                    // Limit maximum height
+                    const maxHeight = 2400;
+                    if (targetHeight > maxHeight) {{
+                        targetHeight = maxHeight;
+                        targetWidth = targetHeight / aspectRatio;
+                    }}
+
+                    // Set viewBox to content bounds (removes whitespace)
+                    if (bbox && bbox.width > 0 && bbox.height > 0 &&
+                        !isNaN(bbox.width) && !isNaN(bbox.height)) {{
+                        svg.setAttribute('viewBox', `${{bbox.x}} ${{bbox.y}} ${{bbox.width}} ${{bbox.height}}`);
+                    }}
                 }}
 
                 // Return dimensions for canvas rendering
